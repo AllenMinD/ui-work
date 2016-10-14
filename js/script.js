@@ -82,7 +82,7 @@ window.onload = function(){
 					changeColor(listContent[i].getElementsByTagName("a")[0], jsonFile.urlContent[i].level);
 
 					//创建true和false按钮
-					if (!document.getElementById(item[i] + "btnYes")){
+					if (!document.getElementById(item[i] + "btnYes") && !document.getElementById(item[i] + "btnNo")){
 						var newBtn_Yes = document.createElement("input");
 						var newBtn_No = document.createElement("input");
 						newBtn_Yes.setAttribute("type", "button");
