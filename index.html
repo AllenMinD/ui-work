@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap 101 Template</title>
+
+    <!-- Bootstrap -->
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style>
+
+    button {
+      margin-right: 10px;
+    }
+
+    #add, #enter {
+      margin-top: 10px;
+    }
+
+    #warning1, #warning2{
+      margin-top: 15px;
+      display: none;
+    }
+
+    img {
+      height: 70px;
+      width: 70px;
+    }
+
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="panel panel-info">
+        <!--heading-->
+        <div class="panel-heading">
+          <h3 class="panel-title">Panel</h3>
+        </div>
+        <!--body-->
+        <div class="panel-body">
+          <p>(请Add网址，并按Enter显示)</p>
+          <form role="form">
+            <div class="form-group">
+              <label for="inputUrl">URL</label>
+              <input type="url" class="form-control" id="inputUrl" placeholder="Please input URL">
+              <div class="alert alert-danger" role="alert" id="warning1">请填写完整的url。例如：http://www.abc.com</div>
+              <div class="alert alert-danger" role="alert" id="warning2">请不要输入重复的URL</div>
+              <button type="button" class="btn btn-primary" id="add">Add</button>
+              <button type="button" class="btn btn-success" id="enter">Enter</button>
+            </div>
+          </form>
+
+          <!--url-list-->
+          <ul class="list-group" id="list-group">
+
+          </ul>
+          <!--table-->
+          <table class="table">
+            <tbody>
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+    <script src="jquery-3.1.1.min.js"></script>
+    <script src="dist/js/bootstrap.min.js"></script>
+    <script>
+      window.onload = function(){
+        var inputUrl = document.getElementById("inputUrl");//输入url的表单
+        var addBtn = document.getElementById("add");//add添加按钮
+        var enterBtn = document.getElementById("enter");//enter确认按钮
+        var listGroup = document.getElementById("list-group");//url列表
+        var table = document.getElementsByTagName("tbody")[0];//最终显示出来的表格(包含url，标题，图片，摘要，按钮)
+        var warning = document.getElementById("warning1");
+        var warningRe = document.getElementById("warning2");
+        var item = [];  //存放网址的数组
+
+        //用正则检查url格式是否正确的函数
+        function checkUrl(url){
+          var pattern = /(http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:\/~\+#]*[\w\-\@?^=%&amp;\/~\+#])?/g;
+          return pattern.test(url);
+        }
+
+        //检查url是否重复函数
+        function checkRepeat(url, arr){
+          var flag = true;
+          for (i=0;i<arr.length;i++)
+            if (url == arr[i]) flag = false;
+          return flag?true:false;
+        }
+
+        //改变url背景颜色的函数
+        function changeColor(newA, level){ //参数Aobj是元素<a>，level是它的信任等级
+          if (level < 3) newA.setAttribute("style","background-color:white");
+          else if(3 <= level && level < 6) newA.setAttribute("style","background-color:#93FF93");
+          else if(6 <= level && level < 9) newA.setAttribute("style","background-color:#53FF53");
+          else if(9 <= level && level < 12) newA.setAttribute("style","background-color:#28FF28");
+          else if(level >= 12) newA.setAttribute("style","background-color:#00DB00");
+        }
+
+        //新建一个tr函数
+        function createNewTr(url, title, img, content){
+          var newTableTr = document.createElement("tr");//tr
+          var newTableTd_1 = document.createElement("td");//url
+          var newTableTd_2 = document.createElement("td");//标题
+          var newTableTd_3 = document.createElement("td");//img
+          var newTableTd_4 = document.createElement("td");//摘要
+          var newTableTd_5 = document.createElement("td");//操作按钮
+          var newBtn_Yes = document.createElement("button");//yes按钮
+          var newBtn_No = document.createElement("button");//no按钮
+          var a = document.createElement("a");
+          var pic = document.createElement("img");
+          table.appendChild(newTableTr);
+          newTableTr.appendChild(newTableTd_1);
+          newTableTr.appendChild(newTableTd_2);
+          newTableTr.appendChild(newTableTd_3);
+          newTableTr.appendChild(newTableTd_4);
+          newTableTr.appendChild(newTableTd_5);
+          newTableTd_5.appendChild(newBtn_Yes);
+          newTableTd_5.appendChild(newBtn_No);
+          newTableTd_1.appendChild(a);
+          newTableTd_3.appendChild(pic);
+
+          // 表格中显示出来的内容
+          //newTableTd_1.innerHTML = url;
+          a.innerHTML = url;
+          newTableTd_2.innerHTML = title;
+          //newTableTd_3.innerHTML = img;
+          newTableTd_4.innerHTML = content;
+
+          newBtn_Yes.setAttribute("type", "button");
+          newBtn_Yes.setAttribute("class", "btn btn-info btn-sm");
+          newBtn_Yes.innerHTML = "Yes";
+          newBtn_No.setAttribute("type", "button");
+          newBtn_No.setAttribute("class", "btn btn-danger btn-sm");
+          newBtn_No.innerHTML = "No";
+          a.setAttribute("href", url);
+          a.setAttribute("target", "_blank");
+          pic.setAttribute("src", img);
+          pic.setAttribute("alt", "pic");
+          pic.setAttribute("class", "img-circle");
+        }
+
+
+        //add按钮 事件
+        addBtn.onclick = function(){
+        
+          if (checkUrl(inputUrl.value)){  //用正则检查url格式是否正确
+            //url显示（如果url格式没错，也不重复的话，就显示出来）
+            warning.setAttribute("style","display:none");//把警告删去
+
+            if (checkRepeat(inputUrl.value, item)){  //检查url是否重复  true表示没有重复
+              warningRe.setAttribute("style","display:none");//把警告删去    
+              item.push(inputUrl.value);  //如果没重复就加入数组
+
+              var newLi = document.createElement("li");
+              newLi.setAttribute("class", "list-group-item");
+              newLi.innerHTML = inputUrl.value;
+
+              listGroup.appendChild(newLi);
+            }
+            else{
+              warningRe.setAttribute("style", "display:block"); 
+            }
+          }
+          else{
+            warning.setAttribute("style","display:block");//显示警告
+          }
+        }
+
+        //enter按钮 事件
+        enterBtn.onclick = function(){
+          $("tbody").empty(); //清空table中的所有子节点
+
+          //重新创建table中的内容
+          //  创建表头
+          var newTableTr = document.createElement("tr");//表头tr
+          var newTableTh_1 = document.createElement("th");//表头url
+          var newTableTh_2 = document.createElement("th");//表头标题
+          var newTableTh_3 = document.createElement("th");//表头img
+          var newTableTh_4 = document.createElement("th");//表头摘要
+          var newTableTh_5 = document.createElement("th");//表头操作
+          table.appendChild(newTableTr);
+          newTableTr.appendChild(newTableTh_1);
+          newTableTr.appendChild(newTableTh_2);
+          newTableTr.appendChild(newTableTh_3);
+          newTableTr.appendChild(newTableTh_4);
+          newTableTr.appendChild(newTableTh_5);
+          newTableTh_1.innerHTML = "URL";
+          newTableTh_2.innerHTML = "Title";
+          newTableTh_3.innerHTML = "Img";
+          newTableTh_4.innerHTML = "Content";
+          newTableTh_5.innerHTML = "operating";
+
+          //创建一个tr。参数通过一个for循环，在json中获得
+          var request = new XMLHttpRequest();
+          request.open("GET", "eg.json", true);
+          request.send();
+          request.onreadystatechange = function()
+          {
+            if (request.readyState==4 && request.status==200)
+            {
+              var jsonFile = eval("("+request.responseText+")"); //把json转换成js
+              //document.getElementById("userId").innerHTML = jsonFile.user[0].userId;
+              for (i=0;i<item.length;i++)
+              {
+                createNewTr(item[0], jsonFile.urlContent[i].Title, jsonFile.urlContent[i].img, jsonFile.urlContent[i].content);
+              }
+            }
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
